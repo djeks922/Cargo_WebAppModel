@@ -24,7 +24,7 @@ export const getDepo = async ({
     const queryParam = id ? { _id: id } : category ? { category } : null;
     if (!queryParam) throw new Error("Bad request");
 
-    const depo = await Depo.findOne(queryParam);
+    const depo = await Depo.findOne(queryParam).populate('products');
 
     return depo;
   } catch (error) {
@@ -33,8 +33,17 @@ export const getDepo = async ({
 };
 export const getDepos = async () => {
   try {
-    const depos = await Depo.find({}).lean();
+    const depos = await Depo.find({}).populate('products').lean();
     return depos;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getDepoLimit = async (category: categoryDepo) => {
+  try {
+    const limit = await Depo.findOne({ category }, "limit").lean();
+    return limit;
   } catch (error) {
     throw error;
   }
@@ -54,7 +63,7 @@ export const addProduct = async (
   category: categoryDepo | mongoose.Types.ObjectId
 ) => {
   try {
-    let query: any = isCategoryOrId(category)
+    let query: any = isCategoryOrId(category);
 
     const updatedInfo = await Depo.updateOne(query, {
       $addToSet: { products: id },
@@ -63,6 +72,10 @@ export const addProduct = async (
       throw new Error("Depo not founded");
     } else if (!updatedInfo.modifiedCount) {
       throw new Error("Product already in Depo");
+    }
+    const depoInfo = await getDepo({ category: categoryDepo.TR });
+    if (depoInfo?.products?.length! >= depoInfo?.limit!) {
+      return "Successfully added to Depo , DEPO LIMIT IS RICHED. PLEASE CONSIDER IT";
     }
 
     return "Successfully added to Depo";
@@ -76,14 +89,16 @@ const addProducts = async (
   category: categoryDepo | mongoose.Types.ObjectId
 ) => {
   try {
-    let query = isCategoryOrId(category)
+    let query = isCategoryOrId(category);
 
-    const result = await depoModel.updateOne(query, {$push: {products: productIDs}})
-  
-    if(!result.modifiedCount) throw new Error("Operation unsuccessfull!");
-    return 'Successfully added products to Depo!'
+    const result = await depoModel.updateOne(query, {
+      $push: { products: productIDs },
+    });
+
+    if (!result.modifiedCount) throw new Error("Operation unsuccessfull!");
+    return "Successfully added products to Depo!";
   } catch (error) {
-    throw error
+    throw error;
   }
 };
 
@@ -93,18 +108,13 @@ export const removeProduct = async (
   session?: ClientSession
 ) => {
   try {
-    let query: any;
-    if (mongoose.isValidObjectId(category)) {
-      query = { _id: category };
-    } else {
-      query = { category };
-    }
+    let query = isCategoryOrId(category);
 
     let session1;
     if (session) session1 = { session };
     const deletedInfo = await Depo.updateOne(
       query,
-      { $pull: { products: _id } },
+      { $pull: { products: _id }, $addToSet: { products_archive: _id } },
       session1
     );
 
@@ -126,5 +136,6 @@ export default {
   deleteDepo,
   addProduct,
   removeProduct,
-  addProducts
+  addProducts,
+  getDepoLimit,
 };

@@ -7,8 +7,9 @@ export enum categoryDepo{
 
 const DepoSchema  = new Schema({
     category: {type: String, enum: categoryDepo, default: categoryDepo.TR},
-    limit: Number,
-    products: [{type: Schema.Types.ObjectId, ref: 'product'}]
+    limit: {type:Number, require},
+    products: [{type: Schema.Types.ObjectId, ref: 'product'}],
+    products_archive: [{type: Schema.Types.ObjectId, ref: 'product'}]
 })
 
 export default model('depo', DepoSchema)

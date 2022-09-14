@@ -42,7 +42,7 @@ export const getFlights = async (
   next: NextFunction
 ) => {
   try {
-    const flights = await flightModel.find({});
+    const flights = await flightModel.find({}).populate('products');
     res.send({ data: flights });
   } catch (error) {
     next(error);
@@ -88,6 +88,7 @@ export const addProductToFlight = async (
       { $addToSet: { products: productID } },
       { session }
     );
+    console.log(result, 'flight')
     if (!result.matchedCount) {
       throw new Error("Flight not founded");
     } else if (!result.modifiedCount) {

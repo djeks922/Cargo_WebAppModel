@@ -8,9 +8,11 @@ export const createProduct =async (req:Request,res:Response,next: NextFunction) 
         const productInput = req.body
     
         const product = await Product.create(productInput)
-        await addProduct(product._id, categoryDepo.TR)
 
-        res.send({data: product})
+        const depoResponse = await addProduct(product._id, categoryDepo.TR)
+        console.log(depoResponse)
+
+        res.send({data: product, message: depoResponse})
     } catch (error) {
         next(error)
     }
@@ -28,7 +30,7 @@ export const getProduct =async (req:Request,res:Response,next: NextFunction) => 
 }
 export const getProducts =async (req:Request,res:Response,next: NextFunction) => {
     try {
-        const products = await Product.find({})
+        const products = await Product.find().where({isDeleted: true})
         res.send({data: products})
     } catch (error) {
         next(error)
@@ -38,8 +40,9 @@ export const deleteProduct =async (req:Request,res:Response,next: NextFunction) 
     try {
         const id = req.params.id
 
-        const deleted = await Product.deleteOne({_id: id})
-        if(!deleted.deletedCount) return res.send({data: 'Operation unsuccesfull!'})
+        const deleted = await Product.updateOne({_id: id}, {isDeleted: true})
+        if(!deleted.modifiedCount) throw new Error("Product not deleted or already deleted!");
+        
         res.send({data: 'Succesfully deleted'})
     } catch (error) {
         next(error)

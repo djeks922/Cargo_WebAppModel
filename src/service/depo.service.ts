@@ -77,7 +77,9 @@ const addProducts = async (
 ) => {
   try {
     let query = isCategoryOrId(category)
-    const result = await depoModel.updateOne(query, {$addToSet: {products: {$each: [productIDs] }}})
+
+    const result = await depoModel.updateOne(query, {$push: {products: productIDs}})
+  
     if(!result.modifiedCount) throw new Error("Operation unsuccessfull!");
     return 'Successfully added products to Depo!'
   } catch (error) {

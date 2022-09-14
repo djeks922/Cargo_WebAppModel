@@ -110,13 +110,25 @@ export const unloadFlight = async (
 ) => {
   try {
     const {flightID, depoID} = req.params
+
     const flight = await flightModel.findById(flightID)
-    if(!flight) throw new Error("Flight not founded");
+
+    if(!flight) throw new Error("Flight not founded!");
+
+    if(flight.isUnload) {
+      const error =  new Error("Products already unloaded to depo!");
+      (error as any).status = 409
+      throw error
+    }
+      
+    
     
     const flightProducts: mongoose.Types.ObjectId[] = flight.products as unknown as mongoose.Types.ObjectId[]
-
+  
     const result = await depoService.addProducts(flightProducts,depoID as categoryDepo | mongoose.Types.ObjectId)
-    console.log(result)
+
+    flight.isUnload = true
+    await flight.save()
 
     res.send({data: result})
   } catch (error) {

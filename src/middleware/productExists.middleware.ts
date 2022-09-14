@@ -5,9 +5,8 @@ import productModel from "../model/product.model"
 export default async (req:Request,res:Response,next: NextFunction) => {
     try {
         const {productID} = req.params
-
         const isProduct = await productModel.countDocuments({_id: productID})
-        if(isProduct) next()
+        if(isProduct) return next()
 
         throw new Error("Product does not exist");
         

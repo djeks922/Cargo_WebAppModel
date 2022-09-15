@@ -4,11 +4,13 @@ module.exports = {
     './src/**/*.{js,jsx,ts,tsx}'
   ],
   theme: {
-    theme: {
-      container: {
-        center: true,
-      },
+      extend: {
+        zIndex: {
+          '1000': '1000',
+        }
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')({ nocompatible: true })
+  ],
 }

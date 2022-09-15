@@ -1,21 +1,54 @@
 import React from "react";
 import axios from "axios";
-const Products = ({ products }) => {
+import { useState } from "react";
+import { useEffect } from "react";
+
+const Products = ({ products, isDepo, isFlight ,addProduct}) => {
+  const [productsFiltered, setProductsFiltered] = useState([]);
+
+  useEffect(() => {
+    if (products) {
+      return setProductsFiltered(products);
+    }
+    fetchProducts();
+    async function fetchProducts() {
+      try {
+        const products = await axios.get(
+          `${process.env.REACT_APP_BACK_URL}/products`
+        );
+        setProductsFiltered(products.data.data);
+      } catch (error) {
+        throw error;
+      }
+    }
+  }, [products]);
+
   const deleteProduct = async (id) => {
     try {
       if (window.confirm("sure?")) {
         const result = await axios.delete(
           `${process.env.REACT_APP_BACK_URL}/products/${id}`
         );
-        console.log(result.data);
         alert(`${result.data.data}`);
+        setProductsFiltered((prev) => {
+          return prev.filter((product) => product._id !== id);
+        });
       }
     } catch (error) {
       throw error;
     }
   };
 
-  let productsJsx = products.map((product) => {
+  const addProductToFlight = async (flightID, productID) => {
+    try {
+       const res = await axios.post(`${process.env.REACT_APP_BACK_URL}/flights/add-product/${flightID}/${productID}`)
+       console.log(res.data.data)
+    } catch (error) {
+      throw error
+    }
+  }
+
+  let productsJsx = productsFiltered.map((product) => {
     let time = new Date(product.createdAt);
     let calendar = time.toLocaleDateString();
     let hours = time.getHours().toLocaleString();
@@ -28,11 +61,15 @@ const Products = ({ products }) => {
         <td className="border px-8 py-4">{product.category}</td>
         <td className="border px-8 py-4">{product.barcode}</td>
         <td className="border px-8 py-4">{product.weight}</td>
+        <td className="border px-8 py-4">{product.status}</td>
         <td className="border px-8 py-4">{product.identifier}</td>
         <td className="border px-8 py-4">{calendar}</td>
-        <td className="border bg-red-600 px-8 py-4">
+        {isFlight || <td className="border bg-red-600 px-8 py-4">
           <button onClick={() => deleteProduct(product._id)}>DELETE</button>
-        </td>
+        </td>}
+        {addProduct?.isAdding && <td className="border bg-yellow-600 px-8 py-4">
+          <button onClick={() => addProductToFlight(addProduct.id, product._id)}> ADD</button>
+        </td>}
       </tr>
     );
   });
@@ -40,25 +77,27 @@ const Products = ({ products }) => {
   return (
     <div className="grid w-11/12 mx-auto my-0">
       <div>
-        <h1 className="size-xl my-2 font-bold text-3xl">PRODUCTS</h1>
+        <h1 className="size-xl my-2 font-bold text-3xl text-cyan-300">PRODUCTS</h1>
       </div>
-      <table className="shadow-2xl bg-slate-800 border-collapse">
-      <thead>
-      <tr>
-          <th className="bg-gray-800 border text-left px-8 py-4">ID</th>
-          <th className="bg-gray-800 border text-left px-8 py-4">NAME</th>
-          <th className="bg-gray-800 border text-left px-8 py-4">CATEGORY</th>
-          <th className="bg-gray-800 border text-left px-8 py-4">BARCODE</th>
-          <th className="bg-gray-800 border text-left px-8 py-4">WEIGHT</th>
-          <th className="bg-gray-800 border text-left px-8 py-4">IDENTIFIER</th>
-          <th className="bg-gray-800 border text-left px-8 py-4">REGISTERED AT</th>
-        </tr>
-      </thead>
-  
-        <tbody>
-        {productsJsx}
-        </tbody>
-        
+      <table className={`shadow-2xl bg-slate-800 border-collapse`}>
+        <thead>
+          <tr>
+            <th className="bg-gray-800 border text-left px-8 py-4">ID</th>
+            <th className="bg-gray-800 border text-left px-8 py-4">NAME</th>
+            <th className="bg-gray-800 border text-left px-8 py-4">CATEGORY</th>
+            <th className="bg-gray-800 border text-left px-8 py-4">BARCODE</th>
+            <th className="bg-gray-800 border text-left px-8 py-4">WEIGHT</th>
+            <th className="bg-gray-800 border text-left px-8 py-4">STATUS</th>
+            <th className="bg-gray-800 border text-left px-8 py-4">
+              IDENTIFIER
+            </th>
+            <th className="bg-gray-800 border text-left px-8 py-4">
+              REGISTERED AT
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>{productsJsx}</tbody>
       </table>
     </div>
   );

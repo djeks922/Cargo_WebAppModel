@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { categoryDepo } from "../model/depo.model";
 import flightModel from "../model/flight.model";
-import productModel from "../model/product.model";
+import productModel, { ProductStatusEnum } from "../model/product.model";
 import depoService from "../service/depo.service";
 
 export const createFlight = async (
@@ -88,6 +88,7 @@ export const addProductToFlight = async (
       { $addToSet: { products: productID } },
       { session }
     );
+    const productStatus = await productModel.updateOne({_id:productID},{status: ProductStatusEnum.inPlane})
     console.log(result, 'flight')
     if (!result.matchedCount) {
       throw new Error("Flight not founded");

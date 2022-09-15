@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { categoryDepo } from "../model/depo.model"
-import Product from "../model/product.model"
+import Product, { ProductStatusEnum } from "../model/product.model"
 import {addProduct} from '../service/depo.service'
 
 export const createProduct =async (req:Request,res:Response,next: NextFunction) => {
@@ -40,9 +40,10 @@ export const deleteProduct =async (req:Request,res:Response,next: NextFunction) 
     try {
         const id = req.params.id
 
-        const deleted = await Product.updateOne({_id: id}, {isDeleted: true})
-        if(!deleted.modifiedCount) throw new Error("Product not deleted or already deleted!");
-        
+        const deleted = await Product.findOneAndUpdate({_id:id, status: {$nin: [ProductStatusEnum.inPlane]}, isDeleted: false}, {$set: {isDeleted: true}}, {rawResult: true})
+        console.log(deleted)
+        if(!deleted.lastErrorObject?.updatedExisting) return res.status(401).send({message: 'Product possible in flight or Already deleted. Could not be deleted!'})
+    
         res.send({data: 'Succesfully deleted'})
     } catch (error) {
         next(error)

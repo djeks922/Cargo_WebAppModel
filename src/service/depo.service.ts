@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import mongoose, { ClientSession } from "mongoose";
 import depoModel from "../model/depo.model";
 import Depo, { categoryDepo } from "../model/depo.model";
+import productModel, { ProductStatusEnum } from "../model/product.model";
 import isCategoryOrId from "../utils/isCategoryOrId";
 
 export const createDepo = async (depo: any) => {
@@ -94,6 +95,7 @@ const addProducts = async (
     const result = await depoModel.updateOne(query, {
       $push: { products: productIDs },
     });
+    const productResult = await productModel.updateMany({_id: {$in:productIDs}},{status: ProductStatusEnum.inDepoAZ})
 
     if (!result.modifiedCount) throw new Error("Operation unsuccessfull!");
     return "Successfully added products to Depo!";

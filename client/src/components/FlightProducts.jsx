@@ -3,7 +3,6 @@ import Products from "./Products";
 
 const FlightProducts = ({ show, flightProducts, toggleModal ,addProduct}) => {
   const toggle = (e) => {
-    console.log(e.target)
     toggleModal(!show)
   }
 

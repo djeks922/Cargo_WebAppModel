@@ -37,6 +37,7 @@
     ]
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.5.0",
     "autoprefixer": "^10.4.10",
     "postcss": "^8.4.16",
     "tailwind-scrollbar": "^2.0.1",

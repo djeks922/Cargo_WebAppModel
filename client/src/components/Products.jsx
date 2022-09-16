@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useState } from "react";
 import { useEffect } from "react";
+import { faker } from '@faker-js/faker';
 
 const Products = ({ products, isDepo, isFlight ,addProduct}) => {
   const [productsFiltered, setProductsFiltered] = useState([]);
@@ -48,12 +49,37 @@ const Products = ({ products, isDepo, isFlight ,addProduct}) => {
     }
   }
 
+  const createProduct = async () => {
+    try {
+    
+        const productInput = {
+          name: faker.commerce.productName(),
+          category :faker.commerce.department(),
+          barcode :faker.datatype.uuid(),
+          identifier :faker.datatype.string(),
+          weight: faker.datatype.number({min:0,max:5,precision: 0.01 })
+        }
+        console.log(productInput)
+        const response = await axios.post(`${process.env.REACT_APP_BACK_URL}/products`,productInput)
+        alert('Successfully added!')
+        setProductsFiltered(prev => [response.data.data, ...prev])
+    } catch (error) {
+       throw error
+    }
+  }
+ 
   let productsJsx = productsFiltered.map((product) => {
-    let time = new Date(product.createdAt);
-    let calendar = time.toLocaleDateString();
-    let hours = time.getHours().toLocaleString();
-    let minutes = time.getMinutes().toLocaleString();
-    calendar += ` ${hours}:${minutes}`;
+    const options = {
+      timeZone: "UTC",
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      year: "2-digit",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    let time = (new Date(product.createdAt)).toLocaleString('en-US', options);
+    
     return (
       <tr key={product._id}>
         <td className="border px-8 py-4">{product._id}</td>
@@ -63,7 +89,7 @@ const Products = ({ products, isDepo, isFlight ,addProduct}) => {
         <td className="border px-8 py-4">{product.weight}</td>
         <td className="border px-8 py-4">{product.status}</td>
         <td className="border px-8 py-4">{product.identifier}</td>
-        <td className="border px-8 py-4">{calendar}</td>
+        <td className="border px-8 py-4">{time}</td>
         {isFlight || <td className="border bg-red-600 px-8 py-4">
           <button onClick={() => deleteProduct(product._id)}>DELETE</button>
         </td>}
@@ -75,11 +101,11 @@ const Products = ({ products, isDepo, isFlight ,addProduct}) => {
   });
 
   return (
-    <div className="grid w-11/12 mx-auto my-0">
+    <div className="grid w-11/12 ml-5 my-0">
       <div>
         <h1 className="size-xl my-2 font-bold text-3xl text-cyan-300">PRODUCTS</h1>
       </div>
-      <table className={`shadow-2xl bg-slate-800 border-collapse`}>
+      <table className='shadow-2xl bg-slate-800 border-collapse'>
         <thead>
           <tr>
             <th className="bg-gray-800 border text-left px-8 py-4">ID</th>
@@ -91,8 +117,11 @@ const Products = ({ products, isDepo, isFlight ,addProduct}) => {
             <th className="bg-gray-800 border text-left px-8 py-4">
               IDENTIFIER
             </th>
-            <th className="bg-gray-800 border text-left px-8 py-4">
+            <th className="bg-gray-800 border text-center px-8 py-4">
               REGISTERED AT
+            </th>
+            <th className="bg-gray-800 border text-center ">
+              <button className="border bg-green-600 px-8 py-4" onClick={() => createProduct()} >ADD PRODUCT</button>
             </th>
           </tr>
         </thead>

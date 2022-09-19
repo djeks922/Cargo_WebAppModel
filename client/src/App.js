@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import Flights from "./components/Flights";
-import Depo from "./components/Depo";
-import Products from "./components/Products";
-import DepoProducts from "./components/DepoProducts";
-import FlightProducts from "./components/FlightProducts";
+import Flights from "./components/flight/Flights";
+import Depo from "./components/depo/Depo";
+import Products from "./components/product/Products";
+import DepoProducts from "./components/depo/DepoProducts";
+import FlightProducts from "./components/flight/FlightProducts";
+import FlightForm from "./components/flight/FlightForm";
 
 function App() {
   /**
@@ -39,6 +40,7 @@ function App() {
       <Products/>
       <DepoProducts show={showDepoModal} toggleModal = {setShowDepoModal} depoProducts = {depoProducts}/>
       <FlightProducts show={showFlightModal} toggleModal = {setShowFlightModal} flightProducts = {flightProducts} addProduct={addProduct}/>
+      <FlightForm/>
     </div>
   );
 }

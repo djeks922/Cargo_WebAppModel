@@ -60,7 +60,7 @@ const Flights = (props) => {
   function makeFlightTable() {
     return flights.map((flight) => {
       const options = {
-        timeZone: "UTC",
+        timeZone: "Asia/Baku",
         hour12: false,
         hour: "2-digit",
         minute: "2-digit",

@@ -1,10 +1,12 @@
 import React from "react";
-import Products from "./Products";
+import Products from "../product/Products";
 
 const FlightProducts = ({ show, flightProducts, toggleModal ,addProduct}) => {
   const toggle = (e) => {
-    toggleModal(!show)
+    if(e.target.className.includes('fixed'))
+      toggleModal(!show)
   }
+  
 
   return (
     <>

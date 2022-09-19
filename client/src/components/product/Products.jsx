@@ -120,9 +120,9 @@ const Products = ({ products, isDepo, isFlight ,addProduct}) => {
             <th className="bg-gray-800 border text-center px-8 py-4">
               REGISTERED AT
             </th>
-            <th className="bg-gray-800 border text-center ">
+            {!isFlight && !isDepo && <th className="bg-gray-800 border text-center ">
               <button className="border bg-green-600 px-8 py-4" onClick={() => createProduct()} >ADD PRODUCT</button>
-            </th>
+            </th>}
           </tr>
         </thead>
 
